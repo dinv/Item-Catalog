@@ -14,7 +14,7 @@ session = DBSession()
 
 
 
-#JSON APIs to view catalog information
+#JSON APIs to view catalog information [DONE]
 @app.route('/category/<int:category_id>/item/JSON')
 def categoryItemJSON(category_id):
     category = session.query(CatalogCategory).filter_by(id = category_id).one()
@@ -33,14 +33,14 @@ def categoriesJSON():
 
 
 
-#Show all restaurants
+#Show all restaurants [rename]
 @app.route('/')
 @app.route('/category/')
 def showCategories():
   categories = session.query(CatalogCategory).order_by(asc(CatalogCategory.name))
   return render_template('restaurants.html', restaurants = categories)
 
-#Create a new restaurant
+#Create a new restaurant [fix redirect]
 @app.route('/category/new/', methods=['GET','POST'])
 def newCategory():
   if request.method == 'POST':
@@ -65,16 +65,16 @@ def editRestaurant(restaurant_id):
     return render_template('editRestaurant.html', restaurant = editedRestaurant)
 
 #Delete a restaurant
-@app.route('/restaurant/<int:restaurant_id>/delete/', methods = ['GET','POST'])
-def deleteRestaurant(restaurant_id):
-  restaurantToDelete = session.query(Restaurant).filter_by(id = restaurant_id).one()
+@app.route('/restaurant/<int:category_id>/delete/', methods = ['GET','POST'])
+def deleteCategory(category_id):
+  categoryToDelete = session.query(CatalogCategory).filter_by(id = category_id).one()
   if request.method == 'POST':
-    session.delete(restaurantToDelete)
-    flash('%s Successfully Deleted' % restaurantToDelete.name)
+    session.delete(categoryToDelete)
+    flash('%s Successfully Deleted' % categoryToDelete.name)
     session.commit()
-    return redirect(url_for('showRestaurants', restaurant_id = restaurant_id))
+    return redirect(url_for('showCategories', restaurant_id = category_id))
   else:
-    return render_template('deleteRestaurant.html',restaurant = restaurantToDelete)
+    return render_template('deleteRestaurant.html',restaurant = categoryToDelete)
 
 #Show a restaurant menu #YOU ARE HERE#
 @app.route('/category/<int:category_id>/')
