@@ -40,7 +40,7 @@ def showCategories():
   categories = session.query(CatalogCategory).order_by(asc(CatalogCategory.name))
   return render_template('restaurants.html', restaurants = categories)
 
-#Create a new restaurant [fix redirect]
+#Create a new restaurant [done - rename]
 @app.route('/category/new/', methods=['GET','POST'])
 def newCategory():
   if request.method == 'POST':
@@ -48,7 +48,7 @@ def newCategory():
       session.add(newCategory)
       flash('New Category %s Successfully Created' % newCategory.name)
       session.commit()
-      return redirect(url_for('showCategory'))
+      return redirect(url_for('showCategories'))
   else:
       return render_template('newRestaurant.html')
 
@@ -64,7 +64,7 @@ def editRestaurant(restaurant_id):
   else:
     return render_template('editRestaurant.html', restaurant = editedRestaurant)
 
-#Delete a restaurant
+#Delete a restaurant [done]
 @app.route('/restaurant/<int:category_id>/delete/', methods = ['GET','POST'])
 def deleteCategory(category_id):
   categoryToDelete = session.query(CatalogCategory).filter_by(id = category_id).one()
