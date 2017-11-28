@@ -5,7 +5,6 @@ from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, CatalogCategory, CatalogItem
 
-
 #Connect to Database and create database session
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
@@ -14,8 +13,8 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-#JSON APIs to view catalog information
 
+#JSON APIs to view catalog information
 @app.route('/category/<int:category_id>/item/JSON')
 def categoryItemJSON(category_id):
     category = session.query(CatalogCategory).filter_by(id = category_id).one()
@@ -31,6 +30,7 @@ def itemDetailJSON(category_id, item_id):
 def categoriesJSON():
     categories = session.query(CatalogCategory).all()
     return jsonify(Cateogries= [c.serialize for c in categories])
+
 
 
 #Show all restaurants
@@ -64,7 +64,6 @@ def editRestaurant(restaurant_id):
   else:
     return render_template('editRestaurant.html', restaurant = editedRestaurant)
 
-
 #Delete a restaurant
 @app.route('/restaurant/<int:restaurant_id>/delete/', methods = ['GET','POST'])
 def deleteRestaurant(restaurant_id):
@@ -77,7 +76,7 @@ def deleteRestaurant(restaurant_id):
   else:
     return render_template('deleteRestaurant.html',restaurant = restaurantToDelete)
 
-#Show a restaurant menu #YOU ARE HERE
+#Show a restaurant menu #YOU ARE HERE#
 @app.route('/category/<int:category_id>/')
 @app.route('/category/<int:category_id>/item/')
 def showCategory(category_id):
@@ -85,8 +84,6 @@ def showCategory(category_id):
     items = session.query(CatalogItem).filter_by(catalog_category_id = category_id).all()
     return render_template('menu.html', items = items, restaurant = category)
      
-
-
 #Create a new menu item
 @app.route('/restaurant/<int:restaurant_id>/menu/new/',methods=['GET','POST'])
 def newMenuItem(restaurant_id):
@@ -122,7 +119,6 @@ def editMenuItem(restaurant_id, menu_id):
     else:
         return render_template('editmenuitem.html', restaurant_id = restaurant_id, menu_id = menu_id, item = editedItem)
 
-
 #Delete a menu item
 @app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods = ['GET','POST'])
 def deleteMenuItem(restaurant_id,menu_id):
@@ -135,7 +131,6 @@ def deleteMenuItem(restaurant_id,menu_id):
         return redirect(url_for('showMenu', restaurant_id = restaurant_id))
     else:
         return render_template('deleteMenuItem.html', item = itemToDelete)
-
 
 
 
