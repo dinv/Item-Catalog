@@ -7,10 +7,6 @@
 	<div class="row banner menu">
 		<div class="col-md-11 col-md-offset-1 padding-none">
 			<h1>{{ restaurant.name }}
-			<figure class="creator">
-				<img src="{{ url_for('static', filename='blank_user.gif') }}">
-				<figcaption>Menu creator's name goes here</figcaption>
-			</figure>
 			</h1>
 
 		</div>
@@ -39,7 +35,7 @@
 			</a>
 			<a href="{{url_for('newCatalogItem', category_id = restaurant.id )}}" style="text-decoration: none !important;">
 				<button class="btn btn-default" id="new-menu-item">
-					<span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Add Menu Item
+					<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add Menu Item
 				</button>
 			</a>
 						<a href="{{url_for('deleteCategory', category_id = restaurant.id )}}">
