@@ -40,6 +40,7 @@ h3 {
  	font-size: 14px;
  	color: #0093B9;
  	line-height: 17px;
+ 	text-decoration: none !important;
  }
 .padding-top {
 	padding-top: 30px;
