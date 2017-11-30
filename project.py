@@ -128,7 +128,7 @@ def deleteCatalogItem(category_id,item_id):
         flash('Catalog Item "%s" Successfully Deleted' % (catalogItemToDelete))
         return redirect(url_for('showCategory', category_id = category_id))
     else:
-        return render_template('deleteCatalogItem.html', item = catalogItemToDelete)
+        return render_template('deleteCatalogItem.html', category_id = category_id, item = catalogItemToDelete)
 
 
 ######################################
