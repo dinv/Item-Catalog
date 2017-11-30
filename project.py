@@ -112,10 +112,10 @@ def editCatalogItem(category_id, item_id):
             editedCatalogItem.description = request.form['description']
         session.add(editedCatalogItem)
         session.commit() 
-        flash('Catalog Item Successfully Edited')
+        flash('Catalog Item "%s" Successfully Edited' % (editedCatalogItem.name))
         return redirect(url_for('showCategory', category_id = category_id))
     else:
-        return render_template('editmenuitem.html', category_id = category_id, item_id = item_id, item = editedCatalogItem)
+        return render_template('editCatalogItem.html', category_id = category_id, item_id = item_id, item = editedCatalogItem)
 
 #Delete a catalog item
 @app.route('/category/<int:category_id>/menu/<int:item_id>/delete', methods = ['GET','POST'])
@@ -125,7 +125,7 @@ def deleteCatalogItem(category_id,item_id):
     if request.method == 'POST':
         session.delete(catalogItemToDelete)
         session.commit()
-        flash('Menu Item Successfully Deleted')
+        flash('Catalog Item "%s" Successfully Deleted' % (catalogItemToDelete))
         return redirect(url_for('showCategory', category_id = category_id))
     else:
         return render_template('deleteCatalogItem.html', item = catalogItemToDelete)
