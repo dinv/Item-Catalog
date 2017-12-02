@@ -255,17 +255,23 @@ def deleteCategory(category_id):
 #Show a category's items
 @app.route('/category/<int:category_id>/')
 @app.route('/category/<int:category_id>/item/')
-def showCategory(category_id):
+def showCategory(category_id):  
     category = session.query(CatalogCategory).filter_by(id = category_id).one()
     items = session.query(CatalogItem).filter_by(catalog_category_id = category_id).all()
-    return render_template('category.html', items = items, category = category)
+    creator = getUserInfo(category.user_id)
+    if 'user_id' in login_session:
+        if login_session['user_id'] ==  category.user_id:
+            return render_template('category.html', items = items, category = category, creator = creator)
+    return render_template('publicCategory.html', items = items, category = category, creator = creator)
      
 #Create a new catalog item
 @app.route('/category/<int:category_id>/item/new/',methods=['GET','POST'])
 def newCatalogItem(category_id):
-    if 'username' not in login_session:
-      return redirect('/login')
     category = session.query(CatalogCategory).filter_by(id = category_id).one()
+    creator = getUserInfo(category.user_id)
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        flash('You do not have authorization to access that page')
+        return redirect(url_for('showCategory', category_id = category_id)) 
     if request.method == 'POST':
         newCatalogItem = CatalogItem(name = request.form['name'], description = request.form['description'], 
                                     catalog_category_id = category_id, user_id=login_session['user_id'])
@@ -279,10 +285,12 @@ def newCatalogItem(category_id):
 #Edit a catalog item
 @app.route('/category/<int:category_id>/item/<int:item_id>/edit', methods=['GET','POST'])
 def editCatalogItem(category_id, item_id):
-    if 'username' not in login_session:
-      return redirect('/login')
     editedCatalogItem = session.query(CatalogItem).filter_by(id = item_id).one()
     category = session.query(CatalogCategory).filter_by(id = category_id).one()
+    creator = getUserInfo(category.user_id)
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        flash('You do not have authorization to access that page')
+        return redirect(url_for('showCategory', category_id = category_id))     
     if request.method == 'POST':
         if request.form['name']:
             editedCatalogItem.name = request.form['name']
@@ -296,12 +304,14 @@ def editCatalogItem(category_id, item_id):
         return render_template('editCatalogItem.html', category_id = category_id, item_id = item_id, item = editedCatalogItem)
 
 #Delete a catalog item
-@app.route('/category/<int:category_id>/menu/<int:item_id>/delete', methods = ['GET','POST'])
+@app.route('/category/<int:category_id>/item/<int:item_id>/delete', methods = ['GET','POST'])
 def deleteCatalogItem(category_id,item_id):
-    if 'username' not in login_session:
-      return redirect('/login')
     category = session.query(CatalogCategory).filter_by(id = category_id).one()
     catalogItemToDelete = session.query(CatalogItem).filter_by(id = item_id).one() 
+    creator = getUserInfo(category.user_id)
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        flash('You do not have authorization to access that page')
+        return redirect(url_for('showCategory', category_id = category_id)) 
     if request.method == 'POST':
         session.delete(catalogItemToDelete)
         session.commit()

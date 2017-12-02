@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
  
-from database_setup import CatalogCategory, CatalogItem, Base
+from database_setup import CatalogCategory, CatalogItem, Base, User
  
 engine = create_engine('sqlite:///catalogwithusers.db')
 # Bind the engine to the metadata of the Base class so that the
@@ -18,8 +18,14 @@ DBSession = sessionmaker(bind=engine)
 # session.rollback()
 session = DBSession()
 
+# Create dummy user
+User1 = User(name="Robo Barista", email="tinnyTim@udacity.com",
+             picture='https://pbs.twimg.com/profile_images/2671170543/18debd694829ed78203a5a36dd364160_400x400.png')
+session.add(User1)
+session.commit()
+
 #foo
-category1 = CatalogCategory(name = "Foo")
+category1 = CatalogCategory(name = "Foo", user_id = 1)
 session.add(category1)
 session.commit()
 
@@ -36,7 +42,7 @@ session.add(item3)
 session.commit()
 
 #bar
-category2 = CatalogCategory(name = "Bar")
+category2 = CatalogCategory(name = "Bar", user_id = 1)
 session.add(category2)
 session.commit()
 
@@ -53,7 +59,7 @@ session.add(item3)
 session.commit()
 
 #bar
-category3 = CatalogCategory(name = "Baz")
+category3 = CatalogCategory(name = "Baz", user_id = 1)
 session.add(category3)
 session.commit()
 
