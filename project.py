@@ -3,7 +3,7 @@ app = Flask(__name__)
 
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, CatalogCategory, CatalogItem
+from database_setup import Base, CatalogCategory, CatalogItem, User
 
 #imports for OAuth
 from flask import session as login_session
@@ -17,7 +17,7 @@ from flask import make_response
 import requests
 
 #Connect to Database and create database session
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('sqlite:///catalogwithusers.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -41,8 +41,6 @@ def showLogin():
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
-    print request.args.get('state')
-    print login_session['state']
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -112,6 +110,11 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -122,6 +125,26 @@ def gconnect():
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
+
+# User Helper Functions
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session[
+                   'email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
 
 @app.route('/gdisconnect')
 def gdisconnect():
@@ -145,6 +168,7 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
+        del login_session['user_id']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -178,22 +202,25 @@ def categoriesJSON():
 ######################################
 #Show all categories
 @app.route('/')
-@app.route('/category/')
-def showCategories():
+@app.route('/catalog/')
+def showCatalog():
     categories = session.query(CatalogCategory).order_by(asc(CatalogCategory.name))
-    return render_template('categories.html', categories = categories)
+    if 'user_id' in login_session:
+        return render_template('catalog.html', categories = categories)
+    else:
+        return render_template('publicCatalog.html', categories = categories)
 
 #Create a new category
-@app.route('/category/new/', methods=['GET','POST'])
+@app.route('/catalog/new/', methods=['GET','POST'])
 def newCategory():
     if 'username' not in login_session:
       return redirect('/login')
     if request.method == 'POST':
-        newCategory = CatalogCategory(name = request.form['name'])
+        newCategory = CatalogCategory(name = request.form['name'], user_id=login_session['user_id'])
         session.add(newCategory)
         flash('New Category "%s" Successfully Created' % newCategory.name)
         session.commit()
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showCatalog'))
     else:
         return render_template('newCategory.html')
 
@@ -207,7 +234,7 @@ def editCategory(category_id):
         if request.form['name']:
           editedCategory.name = request.form['name']
           flash('Category "%s" Successfully Edited ' % editedCategory.name)
-          return redirect(url_for('showCategories'))
+          return redirect(url_for('showCatalog'))
     else:
       return render_template('editCategory.html', category = editedCategory)
 
@@ -221,7 +248,7 @@ def deleteCategory(category_id):
       session.delete(categoryToDelete)
       flash('"%s" Successfully Deleted' % categoryToDelete.name)
       session.commit()
-      return redirect(url_for('showCategories', category_id = category_id))
+      return redirect(url_for('showCatalog', category_id = category_id))
     else:
       return render_template('deleteCategory.html', category = categoryToDelete)
 
@@ -240,7 +267,8 @@ def newCatalogItem(category_id):
       return redirect('/login')
     category = session.query(CatalogCategory).filter_by(id = category_id).one()
     if request.method == 'POST':
-        newCatalogItem = CatalogItem(name = request.form['name'], description = request.form['description'], catalog_category_id = category_id)
+        newCatalogItem = CatalogItem(name = request.form['name'], description = request.form['description'], 
+                                    catalog_category_id = category_id, user_id=login_session['user_id'])
         session.add(newCatalogItem)
         session.commit()
         flash('New Item "%s" Successfully Created' % (newCatalogItem.name))
