@@ -122,7 +122,7 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
+    flash("You are now logged in as %s" % login_session['username'])
     print "done!"
     return output
 
@@ -316,7 +316,7 @@ def deleteCatalogItem(category_id,item_id):
     if request.method == 'POST':
         session.delete(catalogItemToDelete)
         session.commit()
-        flash('Catalog Item "%s" Successfully Deleted' % (catalogItemToDelete))
+        flash('Catalog Item Successfully Deleted')
         return redirect(url_for('showCategory', category_id = category_id))
     else:
         return render_template('deleteCatalogItem.html', category_id = category_id, item = catalogItemToDelete)
