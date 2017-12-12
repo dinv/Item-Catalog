@@ -1,3 +1,9 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,8 +13,21 @@
 <script src="//apis.google.com/js/platform.js?onload=start"> </script>
 <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
 </head>
-
 <body>  
+
+<div class="row divider blue">
+  <div class="col-md-12"></div>
+</div>
+<div class="row banner main">
+  <div class="col-md-1"></div>
+  <div class="col-md-11 padding-none">
+    <h1>Login</h1>
+  </div>
+</div>
+
+<h3>Please login with one of the following providers:</h3>
+
+
 <!-- GOOGLE PLUS SIGN IN-->    
           <div id="signinButton">
           <span class="g-signin"
@@ -120,3 +139,5 @@ function signInCallback(authResult) {
   </body>
 
   </html>
+
+{% endblock %}
