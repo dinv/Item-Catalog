@@ -17,7 +17,7 @@ from flask import make_response
 import requests
 
 #Connect to Database and create database session
-engine = create_engine('sqlite:///catalogwithusers.db')
+engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
