@@ -3,3 +3,4 @@ __pycache__
 .vagrant
 catalog.db
 catalogwithusers.db
+.DS_Store
