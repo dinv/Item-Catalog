@@ -296,6 +296,7 @@ def categoriesJSON():
     return jsonify(Cateogries= [c.serialize for c in categories])
 
 
+
 ######################################
 #    Routes with CRUD functionality
 ######################################
