@@ -28,7 +28,7 @@ APPLICATION_NAME = "Restaurant Menu Application"
 
 
 ##########################################
-#    Google OAuth Routes
+#    OAuth Routes
 ##########################################
 # Create anti-forgery state token
 @app.route('/login')
@@ -252,6 +252,30 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+# Disconnect based on provider
+@app.route('/disconnect')
+def disconnect():
+    if 'provider' in login_session:
+        if login_session['provider'] == 'google':
+            gdisconnect()
+            del login_session['access_token']
+            del login_session['gplus_id']
+        if login_session['provider'] == 'facebook':
+            fbdisconnect()
+            del login_session['facebook_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        del login_session['user_id']
+        del login_session['provider']
+        flash("You have been successfully logged out")
+        return redirect(url_for('showCatalog'))
+    else:
+        flash("You were not logged in")
+        return redirect(url_for('showCatalog'))
+
+
+
 ##########################################
 #    JSON APIs to view catalog information
 ##########################################
@@ -395,27 +419,7 @@ def deleteCatalogItem(category_id,item_id):
     else:
         return render_template('deleteCatalogItem.html', category_id = category_id, item = catalogItemToDelete)
 
-# Disconnect based on provider
-@app.route('/disconnect')
-def disconnect():
-    if 'provider' in login_session:
-        if login_session['provider'] == 'google':
-            gdisconnect()
-            del login_session['access_token']
-            del login_session['gplus_id']
-        if login_session['provider'] == 'facebook':
-            fbdisconnect()
-            del login_session['facebook_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
-        del login_session['user_id']
-        del login_session['provider']
-        flash("You have been successfully logged out")
-        return redirect(url_for('showCatalog'))
-    else:
-        flash("You were not logged in")
-        return redirect(url_for('showCatalog'))
+
 
 ######################################
 #    Running the application
