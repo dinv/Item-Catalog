@@ -359,7 +359,14 @@ def newCategory():
 @login_required
 def editCategory(category_id):
     editedCategory = session.query(
-        CatalogCategory).filter_by(id=category_id).one()
+        CatalogCategory).filter_by(id=category_id).one_or_none()
+    if editedCategory is None:
+        flash('That page cannot be found')
+        return redirect(url_for('showCatalog'))
+    creator = getUserInfo(editedCategory.user_id)
+    if creator.id != login_session['user_id']:
+        flash("You do not have authorization to access that page")
+        return redirect(url_for('showCategory', category_id=category_id))
     if request.method == 'POST':
         if request.form['name']:
             editedCategory.name = request.form['name']
@@ -373,7 +380,14 @@ def editCategory(category_id):
 @login_required
 def deleteCategory(category_id):
     categoryToDelete = session.query(
-        CatalogCategory).filter_by(id=category_id).one()
+        CatalogCategory).filter_by(id=category_id).one_or_none()
+    if categoryToDelete is None:
+        flash('That page cannot be found')
+        return redirect(url_for('showCatalog'))
+    creator = getUserInfo(categoryToDelete.user_id)
+    if creator.id != login_session['user_id']:
+        flash("You do not have authorization to access that page")
+        return redirect(url_for('showCategory', category_id=category_id))
     if request.method == 'POST':
         session.delete(categoryToDelete)
         flash('"%s" Successfully Deleted' % categoryToDelete.name)
@@ -386,7 +400,10 @@ def deleteCategory(category_id):
 @app.route('/category/<int:category_id>/')
 @app.route('/category/<int:category_id>/item/')
 def showCategory(category_id):
-    category = session.query(CatalogCategory).filter_by(id=category_id).one()
+    category = session.query(CatalogCategory).filter_by(id=category_id).one_or_none()
+    if category is None:
+        flash('That page cannot be found')
+        return redirect(url_for('showCatalog'))
     items = session.query(CatalogItem).filter_by(
         catalog_category_id=category_id).all()
     creator = getUserInfo(category.user_id)
@@ -401,7 +418,10 @@ def showCategory(category_id):
 @app.route('/category/<int:category_id>/item/new/', methods=['GET', 'POST'])
 @login_required
 def newCatalogItem(category_id):
-    category = session.query(CatalogCategory).filter_by(id=category_id).one()
+    category = session.query(CatalogCategory).filter_by(id=category_id).one_or_none()
+    if category is None:
+        flash('That page cannot be found')
+        return redirect(url_for('showCatalog'))
     creator = getUserInfo(category.user_id)
     if creator.id != login_session['user_id']:
         flash("You do not have authorization to access that page")
@@ -425,7 +445,13 @@ def newCatalogItem(category_id):
 def editCatalogItem(category_id, item_id):
     editedCatalogItem = session.query(
         CatalogItem).filter_by(id=item_id).one_or_none()
-    category = session.query(CatalogCategory).filter_by(id=category_id).one()
+    if editedCatalogItem is None:
+        flash('That page cannot be found')
+        return redirect(url_for('showCatalog'))
+    category = session.query(CatalogCategory).filter_by(id=category_id).one_or_none()
+    if category is None:
+        flash('That page cannot be found')
+        return redirect(url_for('showCatalog'))
     creator = getUserInfo(category.user_id)
     if creator.id != login_session['user_id']:
         flash("You do not have authorization to access that page")
@@ -449,9 +475,15 @@ def editCatalogItem(category_id, item_id):
            methods=['GET', 'POST'])
 @login_required
 def deleteCatalogItem(category_id, item_id):
-    category = session.query(CatalogCategory).filter_by(id=category_id).one()
+    category = session.query(CatalogCategory).filter_by(id=category_id).one_or_none()
+    if category is None:
+        flash('That page cannot be found')
+        return redirect(url_for('showCatalog'))
     catalogItemToDelete = session.query(
-        CatalogItem).filter_by(id=item_id).one()
+        CatalogItem).filter_by(id=item_id).one_or_none()
+    if catalogItemToDelete is None:
+        flash('That page cannot be found')
+        return redirect(url_for('showCatalog'))
     creator = getUserInfo(category.user_id)
     if creator.id != login_session['user_id']:
         flash("You do not have authorization to access that page")
